@@ -1,8 +1,10 @@
-## Obsidian Daily Stats
+## Obsidian Daily Heatmap
 
-This is a daily word count plugin for Obsidian (https://obsidian.md). You can see today's word count in the bottom right corner of your screen, and also see the historical logs in a right panel view akin to Github's contribution graph.
+This is a daily word count and heatmap plugin that is forked from https://github.com/dhruvik7/obsidian-daily-stats. I wanted to update it to modernize the libraries and fix some bugs I was experiencing. 
 
-This plugin was inspired by liamcain's [Calender](https://github.com/liamcain/obsidian-calendar-plugin) and lukeleppan's [Better Word Count](https://github.com/lukeleppan/better-word-count).
+### Features
+
+You can see today's word count in the bottom right corner of your screen, and a  heatmap in the right panel view akin to Github's contribution graph.
 
 ![Example](./images/example-graph.png)
 
