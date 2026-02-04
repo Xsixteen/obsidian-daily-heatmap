@@ -1,26 +1,16 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { VIEW_TYPE_STATS_TRACKER } from "./constants";
-import * as ReactDOM from "react-dom";
+import { createRoot, Root } from "react-dom/client";
 import * as React from "react";
 import Calendar from "./calendar";
-import '../styles.css';
 
 export default class StatsTrackerView extends ItemView {
     private dayCounts: Record<string, number>;
+    private root: Root | null = null;
 
     constructor(leaf: WorkspaceLeaf, dayCounts: Record<string, number>) {
         super(leaf);
         this.dayCounts = dayCounts;
-
-        this.registerInterval(
-            window.setInterval(() => {
-                ReactDOM.render(React.createElement(Calendar, {
-                    data: Object.keys(this.dayCounts).map(day => {
-                        return { "date": new Date(new Date(day).setMonth(new Date(day).getMonth() + 1)), "count": this.dayCounts[day] }
-                    }),
-                }), (this as any).contentEl);
-            }, 1000)
-        );
     }
 
     getDisplayText() {
@@ -36,10 +26,34 @@ export default class StatsTrackerView extends ItemView {
     }
 
     async onOpen() {
-        ReactDOM.render(React.createElement(Calendar, {
-            data: Object.keys(this.dayCounts).map(day => {
-                return { "date": new Date(new Date(day).setMonth(new Date(day).getMonth() + 1)), "count": this.dayCounts[day] }
-            }),
-        }), (this as any).contentEl);
+        this.renderView();
+    }
+
+    async onClose() {
+        if (this.root) {
+            this.root.unmount();
+            this.root = null;
+        }
+    }
+
+    refresh(dayCounts: Record<string, number>) {
+        this.dayCounts = dayCounts;
+        this.renderView();
+    }
+
+    private renderView() {
+        // Create a root element if it doesn't exist
+        const container = this.contentEl;
+
+        if (!this.root) {
+            this.root = createRoot(container);
+        }
+
+        const data = Object.entries(this.dayCounts).map(([date, count]) => ({
+            date: date,
+            count: count
+        }));
+
+        this.root.render(React.createElement(Calendar, { data }));
     }
 }
