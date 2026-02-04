@@ -4,7 +4,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
-    "target": "es6",
+    "target": "ES2018",
     "allowJs": true,
     "noImplicitAny": true,
     "moduleResolution": "node",
@@ -13,13 +13,12 @@
       "dom",
       "es5",
       "scripthost",
-      "es2015",
-      "DOM.Iterable"
+      "es2018"
     ],
-    "jsx": "react",
+    "jsx": "react-jsx"
   },
   "include": [
     "**/*.ts",
-    "**/*.tsx",
+    "**/*.tsx"
   ]
 }

@@ -1,24 +1,46 @@
-text {
-    fill: #aaa;
+.react-calendar-heatmap text {
+  font-size: 7px;
+  fill: var(--text-muted);
 }
 
-rect:hover {
-    stroke: #555;
-    stroke-width: 0.5px;
+.react-calendar-heatmap .react-calendar-heatmap-weekday-labels {
+  transform: translate(-10px, 0);
+}
+
+.react-calendar-heatmap rect:hover {
+  stroke: var(--background-modifier-border);
+  stroke-width: 1px;
 }
 
 /*
 * Default color scale
 */
 
-.color-empty {
-    fill: var(--background-modifier-border);
+.react-calendar-heatmap .color-empty {
+  fill: var(--background-modifier-border);
 }
 
-.color-filled {
-    fill: var(--text-accent);
+.react-calendar-heatmap .color-scale-1 {
+  fill: var(--text-accent);
+  opacity: 0.2;
 }
 
-#color-elem {
-    color: var(--text-accent);
+.react-calendar-heatmap .color-scale-2 {
+  fill: var(--text-accent);
+  opacity: 0.4;
+}
+
+.react-calendar-heatmap .color-scale-3 {
+  fill: var(--text-accent);
+  opacity: 0.6;
+}
+
+.react-calendar-heatmap .color-scale-4 {
+  fill: var(--text-accent);
+  opacity: 0.8;
+}
+
+.react-calendar-heatmap .color-scale-5 {
+  fill: var(--text-accent);
+  opacity: 1.0;
 }

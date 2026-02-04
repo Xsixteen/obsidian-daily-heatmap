@@ -1,4 +1,4 @@
-import { TFile, Plugin, MarkdownView, debounce, Debouncer, WorkspaceLeaf, addIcon } from 'obsidian';
+import { TFile, Plugin, MarkdownView, debounce, Debouncer, WorkspaceLeaf, addIcon, moment } from 'obsidian';
 import { VIEW_TYPE_STATS_TRACKER } from './constants';
 import StatsTrackerView from './view';
 
@@ -24,17 +24,21 @@ export default class DailyStats extends Plugin {
 	today: string;
 	debouncedUpdate: Debouncer<[contents: string, filepath: string]>;
 
-	private view: StatsTrackerView;
+	private view: StatsTrackerView | null = null;
 
 	async onload() {
 		await this.loadSettings();
+		await this.migrateData();
 
 		this.statusBarEl = this.addStatusBarItem();
 		this.updateDate();
+
 		if (this.settings.dayCounts.hasOwnProperty(this.today)) {
+			// This will also update the status bar
 			this.updateCounts();
 		} else {
 			this.currentWordCount = 0;
+			this.statusBarEl.setText("0 words today");
 		}
 
 		this.debouncedUpdate = debounce((contents: string, filepath: string) => {
@@ -63,17 +67,19 @@ export default class DailyStats extends Plugin {
 			this.app.workspace.on("quick-preview", this.onQuickPreview.bind(this))
 		);
 
-		this.registerInterval(
-			window.setInterval(() => {
-				this.statusBarEl.setText(this.currentWordCount + " words today ");
-			}, 200)
+		// Event for when the user types
+		this.registerEvent(
+			this.app.workspace.on("editor-change", (editor, info) => {
+				if (info.file) {
+					const content = editor.getValue();
+					this.debouncedUpdate(content, info.file.path);
+				}
+			})
 		);
 
-		addIcon("bar-graph", `<path fill="currentColor" stroke="currentColor" d="M122.88,105.98H9.59v-0.02c-2.65,0-5.05-1.08-6.78-2.81c-1.72-1.72-2.79-4.11-2.79-6.75H0V0h12.26v93.73h110.62V105.98 L122.88,105.98z M83.37,45.6h19.55c1.04,0,1.89,0.85,1.89,1.89v38.46c0,1.04-0.85,1.89-1.89,1.89H83.37 c-1.04,0-1.89-0.85-1.89-1.89V47.5C81.48,46.46,82.33,45.6,83.37,45.6L83.37,45.6z M25.36,22.07h19.55c1.04,0,1.89,0.85,1.89,1.89 v62c0,1.04-0.85,1.89-1.89,1.89H25.36c-1.04,0-1.89-0.85-1.89-1.89v-62C23.47,22.92,24.32,22.07,25.36,22.07L25.36,22.07 L25.36,22.07z M54.37,8.83h19.54c1.04,0,1.89,0.85,1.89,1.89v75.24c0,1.04-0.85,1.89-1.89,1.89H54.37c-1.04,0-1.89-0.85-1.89-1.89 V10.72C52.48,9.68,53.33,8.83,54.37,8.83L54.37,8.83z"/>`);
-		this.registerInterval(window.setInterval(() => {
-			this.updateDate();
-			this.saveSettings();
-		}, 1000));
+		addIcon("bar-graph", `<path fill="currentColor" stroke="none" d="M10,90 V50 a5,5 0 0 1 5,-5 h10 a5,5 0 0 1 5,5 V90 z M40,90 V15 a5,5 0 0 1 5,-5 h10 a5,5 0 0 1 5,5 V90 z M70,90 V35 a5,5 0 0 1 5,-5 h10 a5,5 0 0 1 5,5 V90 z" />`);
+
+
 
 		if (this.app.workspace.layoutReady) {
 			this.initLeaf();
@@ -81,6 +87,41 @@ export default class DailyStats extends Plugin {
 			this.registerEvent(
 				this.app.workspace.on("layout-ready", this.initLeaf.bind(this))
 			);
+		}
+	}
+
+	// Migrate old date format (YYYY/M/D) to ISO (YYYY-MM-DD)
+	async migrateData() {
+		let changed = false;
+		const newDayCounts: Record<string, number> = {};
+
+		for (const [date, count] of Object.entries(this.settings.dayCounts)) {
+			// Check for old format: YYYY/M/D where month is 0-indexed
+			// Regex looks for "YYYY/D/D" or "YYYY/D/DD" etc
+			if (date.match(/^\d{4}\/\d{1,2}\/\d{1,2}$/)) {
+				const parts = date.split('/');
+				const year = parseInt(parts[0]);
+				const month = parseInt(parts[1]); // 0-indexed in old plugin
+				const day = parseInt(parts[2]);
+
+				// Create date object (months are 0-indexed in JS Date too, so this matches old logic)
+				const d = new Date(year, month, day);
+				// Format to YYYY-MM-DD
+				const isoDate = moment(d).format('YYYY-MM-DD');
+
+				// Merge counts if multiple old entries map to same ISO date (unlikely but safe)
+				newDayCounts[isoDate] = (newDayCounts[isoDate] || 0) + count;
+				changed = true;
+			} else {
+				// Keep existing if already correct or different format
+				newDayCounts[date] = count;
+			}
+		}
+
+		if (changed) {
+			console.log("Migrating Daily Stats data to ISO format...");
+			this.settings.dayCounts = newDayCounts;
+			await this.saveSettings();
 		}
 	}
 
@@ -122,6 +163,8 @@ export default class DailyStats extends Plugin {
 
 	updateWordCount(contents: string, filepath: string) {
 		const curr = this.getWordCount(contents);
+		this.updateDate();
+
 		if (this.settings.dayCounts.hasOwnProperty(this.today)) {
 			if (this.settings.todaysWordCount.hasOwnProperty(filepath)) {//updating existing file
 				this.settings.todaysWordCount[filepath].current = curr;
@@ -136,13 +179,24 @@ export default class DailyStats extends Plugin {
 	}
 
 	updateDate() {
-		const d = new Date();
-		this.today = d.getFullYear() + "/" + d.getMonth() + "/" + d.getDate();
+		// Use standard ISO format
+		this.today = moment().format('YYYY-MM-DD');
 	}
 
 	updateCounts() {
 		this.currentWordCount = Object.values(this.settings.todaysWordCount).map((wordCount) => Math.max(0, wordCount.current - wordCount.initial)).reduce((a, b) => a + b, 0);
 		this.settings.dayCounts[this.today] = this.currentWordCount;
+
+		// Update UI
+		this.statusBarEl.setText(this.currentWordCount + " words today");
+
+		// Update View
+		const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STATS_TRACKER)[0];
+		if (leaf && leaf.view instanceof StatsTrackerView) {
+			leaf.view.refresh(this.settings.dayCounts);
+		}
+
+		this.saveSettings();
 	}
 
 	async loadSettings() {
@@ -150,8 +204,6 @@ export default class DailyStats extends Plugin {
 	}
 
 	async saveSettings() {
-		if (Object.keys(this.settings.dayCounts).length > 0) { //ensuring we never reset the data by accident
-			await this.saveData(this.settings);
-		}
+		await this.saveData(this.settings);
 	}
 }

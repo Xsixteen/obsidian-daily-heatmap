@@ -1,74 +1,68 @@
 import * as React from "react";
 import ReactCalendarHeatmap from "react-calendar-heatmap";
-import { MAX_COLORS, COLOR_FREQ } from "./constants";
 
 interface HeatmapProps {
-    data: any[];
+    data: { date: string | Date; count: number }[];
 }
 
-const getColorLevel = (count: number) => {
-    if (count < 150) {
-        return 1;
-    }
-    if (count < 400) {
-        return 2;
-    }
-    if (count < 750) {
-        return 3;
-    }
-    if (count < 1500) {
-        return 4;
-    }
+const getColorLevel = (count: number): number => {
+    if (count === 0) return 0;
+    if (count < 150) return 1;
+    if (count < 400) return 2;
+    if (count < 750) return 3;
+    if (count < 1500) return 4;
     return 5;
-}
+};
 
-class Heatmap extends React.Component<HeatmapProps> {
-    render() {
-        const element = document.getElementById("color-elem");
-        if (element) {
-            const base = getComputedStyle(element).getPropertyValue("color");
-            for (let elem of Array.from(document.getElementsByClassName("color1") as HTMLCollectionOf<HTMLElement>)) {
-                elem.style.fill = base;
-                elem.style.opacity = "0.44";
-            }
-            for (let elem of Array.from(document.getElementsByClassName("color2") as HTMLCollectionOf<HTMLElement>)) {
-                elem.style.fill = base;
-                elem.style.opacity = "0.6";
-            }
-            for (let elem of Array.from(document.getElementsByClassName("color3") as HTMLCollectionOf<HTMLElement>)) {
-                elem.style.fill = base;
-                elem.style.opacity = "0.76";
-            }
-            for (let elem of Array.from(document.getElementsByClassName("color4") as HTMLCollectionOf<HTMLElement>)) {
-                elem.style.fill = base;
-                elem.style.opacity = "0.92";
-            }
-            for (let elem of Array.from(document.getElementsByClassName("color5") as HTMLCollectionOf<HTMLElement>)) {
-                elem.style.fill = base;
-                elem.style.opacity = "1";
-            }
+const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
+    const today = new Date();
+    let startDate = new Date();
+
+    if (data.length > 0) {
+        const dates = data.map(d => (d.date instanceof Date ? d.date : new Date(d.date)).getTime());
+        const minDateVal = Math.min(...dates);
+        startDate = new Date(minDateVal);
+
+        // Check if the range (today - minDate) is greater than ~1 month (30 days)
+        const dayDiff = (today.getTime() - minDateVal) / (1000 * 3600 * 24);
+        if (dayDiff <= 30) {
+            startDate.setMonth(startDate.getMonth() - 1);
         }
-        return <div style={{ padding: "10px 0px 0px 10px", maxWidth: "300px", marginLeft: "auto", marginRight: "auto", fontSize: "4px !important" }} id="calendar-container">
+    } else {
+        startDate.setFullYear(today.getFullYear());
+        startDate.setMonth(startDate.getMonth() - 1);
+    }
+
+    return (
+        <div className="calendar-container" style={{ padding: "10px", maxWidth: "400px", margin: "0 auto" }}>
             <ReactCalendarHeatmap
-                startDate={new Date(new Date().setFullYear(new Date().getFullYear() - 1))}
-                endDate={new Date()}
-                values={this.props.data}
+                startDate={startDate}
+                endDate={today}
+                values={data}
                 horizontal={false}
                 showMonthLabels={true}
                 showWeekdayLabels={true}
-                weekdayLabels={["S", "M", "T", "W", "T", "F", "S"]}
+                showOutOfRangeDays={false}
                 classForValue={(value) => {
-                    if (!value || value.count == 0) {
+                    if (!value || value.count === 0) {
                         return 'color-empty';
                     }
-                    return `color${getColorLevel(value.count)}`;
+                    return `color-scale-${getColorLevel(value.count)}`;
                 }}
-                titleForValue={(value) => !value || value.date === null ? '' : value.count + ' words on ' + new Date(value.date).toLocaleDateString()}
+                titleForValue={(value) => {
+                    if (!value || !value.date) return '';
+                    const dateObj = value.date instanceof Date ? value.date : new Date(value.date);
+                    // Use UTC to prevent timezone shift since strings like "2023-01-01" parse as UTC midnight
+                    const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+                    const year = dateObj.getUTCFullYear();
+                    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+                    const dateStr = `${weekday} ${year}-${month}-${day}`;
+                    return `${value.count} words on ${dateStr}`;
+                }}
             />
-            <div id="color-elem" />
         </div>
-    }
-
-}
+    );
+};
 
 export default Heatmap;
