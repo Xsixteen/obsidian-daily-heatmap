@@ -3,7 +3,7 @@
 	"name": "Daily Heatmap Stats",
 	"version": "0.1.0",
 	"minAppVersion": "0.10.12",
-	"description": "Track your daily word count across all notes in your vaults and display them in a heatmap.  This is a modern fork off of https://github.com/dhruvik7/obsidian-daily-stats which features updates and bug fixes.",
+	"description": "Track your daily word count across all notes in your vaults and display them in a heatmap and status bar.",
 	"author": "Eric Ulicny",
 	"isDesktopOnly": false
 }
