@@ -185,7 +185,12 @@ export default class DailyStats extends Plugin {
 
 	updateCounts() {
 		this.currentWordCount = Object.values(this.settings.todaysWordCount).map((wordCount) => Math.max(0, wordCount.current - wordCount.initial)).reduce((a, b) => a + b, 0);
-		this.settings.dayCounts[this.today] = this.currentWordCount;
+
+		// Only update and save if the count has changed
+		if (this.settings.dayCounts[this.today] !== this.currentWordCount) {
+			this.settings.dayCounts[this.today] = this.currentWordCount;
+			this.saveSettings();
+		}
 
 		// Update UI
 		this.statusBarEl.setText(this.currentWordCount + " words today");
@@ -195,8 +200,6 @@ export default class DailyStats extends Plugin {
 		if (leaf && leaf.view instanceof StatsTrackerView) {
 			leaf.view.refresh(this.settings.dayCounts);
 		}
-
-		this.saveSettings();
 	}
 
 	async loadSettings() {

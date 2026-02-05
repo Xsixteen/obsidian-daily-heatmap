@@ -1,4 +1,4 @@
-## Obsidian Daily Heatmap
+## Daily Heatmap Stats - Obsidian Plugin
 
 This is a daily word count and heatmap plugin that is forked from https://github.com/dhruvik7/obsidian-daily-stats. I wanted to update it to modernize the libraries and fix some bugs I was experiencing. 
 
