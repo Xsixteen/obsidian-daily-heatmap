@@ -4,6 +4,7 @@
   "description": "This is an Obsidian.md plugin that lets you view your daily word count in a github styleheatmap.",
   "main": "main.js",
   "scripts": {
+    "ci": "npm ci",
     "dev": "node esbuild.config.mjs",
     "build": "node esbuild.config.mjs production",
     "version": "node version-bump.mjs && git add manifest.json versions.json"
