@@ -24,7 +24,7 @@ export default class DailyStats extends Plugin {
 	today: string;
 	debouncedUpdate: Debouncer<[contents: string, filepath: string]>;
 
-	private view: StatsTrackerView | null = null;
+
 
 	async onload() {
 		await this.loadSettings();
@@ -33,7 +33,7 @@ export default class DailyStats extends Plugin {
 		this.statusBarEl = this.addStatusBarItem();
 		this.updateDate();
 
-		if (this.settings.dayCounts.hasOwnProperty(this.today)) {
+		if (Object.prototype.hasOwnProperty.call(this.settings.dayCounts, this.today)) {
 			// This will also update the status bar
 			this.updateCounts();
 		} else {
@@ -47,7 +47,7 @@ export default class DailyStats extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_STATS_TRACKER,
-			(leaf: WorkspaceLeaf) => (this.view = new StatsTrackerView(leaf, this.settings.dayCounts))
+			(leaf: WorkspaceLeaf) => new StatsTrackerView(leaf, this.settings.dayCounts)
 		);
 
 		this.addCommand({
@@ -119,7 +119,7 @@ export default class DailyStats extends Plugin {
 		}
 
 		if (changed) {
-			console.log("Migrating Daily Stats data to ISO format...");
+			console.debug("Migrating Daily Stats data to ISO format...");
 			this.settings.dayCounts = newDayCounts;
 			await this.saveSettings();
 		}
@@ -165,8 +165,8 @@ export default class DailyStats extends Plugin {
 		const curr = this.getWordCount(contents);
 		this.updateDate();
 
-		if (this.settings.dayCounts.hasOwnProperty(this.today)) {
-			if (this.settings.todaysWordCount.hasOwnProperty(filepath)) {//updating existing file
+		if (Object.prototype.hasOwnProperty.call(this.settings.dayCounts, this.today)) {
+			if (Object.prototype.hasOwnProperty.call(this.settings.todaysWordCount, filepath)) {//updating existing file
 				this.settings.todaysWordCount[filepath].current = curr;
 			} else {//created new file during session
 				this.settings.todaysWordCount[filepath] = { initial: curr, current: curr };
@@ -189,7 +189,7 @@ export default class DailyStats extends Plugin {
 		// Only update and save if the count has changed
 		if (this.settings.dayCounts[this.today] !== this.currentWordCount) {
 			this.settings.dayCounts[this.today] = this.currentWordCount;
-			this.saveSettings();
+			void this.saveSettings();
 		}
 
 		// Update UI

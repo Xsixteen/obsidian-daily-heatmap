@@ -14,7 +14,7 @@ export default class StatsTrackerView extends ItemView {
     }
 
     getDisplayText() {
-        return "Daily Stats";
+        return "Daily stats";
     }
 
     getIcon() {
@@ -25,15 +25,17 @@ export default class StatsTrackerView extends ItemView {
         return VIEW_TYPE_STATS_TRACKER;
     }
 
-    async onOpen() {
+    onOpen(): Promise<void> {
         this.renderView();
+        return Promise.resolve();
     }
 
-    async onClose() {
+    onClose(): Promise<void> {
         if (this.root) {
             this.root.unmount();
             this.root = null;
         }
+        return Promise.resolve();
     }
 
     refresh(dayCounts: Record<string, number>) {
