@@ -129,7 +129,7 @@ export default class DailyStats extends Plugin {
 		if (this.app.workspace.getLeavesOfType(VIEW_TYPE_STATS_TRACKER).length) {
 			return;
 		}
-		this.app.workspace.getRightLeaf(false).setViewState({
+		void this.app.workspace.getRightLeaf(false).setViewState({
 			type: VIEW_TYPE_STATS_TRACKER,
 		});
 	}
@@ -142,7 +142,7 @@ export default class DailyStats extends Plugin {
 
 	//Credit: better-word-count by Luke Leppan (https://github.com/lukeleppan/better-word-count)
 	getWordCount(text: string) {
-		let words: number = 0;
+		let words = 0;
 
 		const matches = text.match(
 			/[a-zA-Z0-9_\u0392-\u03c9\u00c0-\u00ff\u0600-\u06ff]+|[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\uac00-\ud7af]+/gm
