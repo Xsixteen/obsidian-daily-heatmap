@@ -18,6 +18,9 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
     const today = new Date();
     let startDate = new Date();
 
+    // effectiveData will hold our processed data including zero-filled days
+    let effectiveData: { date: string | Date; count: number }[] = [];
+
     if (data.length > 0) {
         const dates = data.map(d => (d.date instanceof Date ? d.date : new Date(d.date)).getTime());
         const minDateVal = Math.min(...dates);
@@ -28,9 +31,31 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
         if (dayDiff <= 30) {
             startDate.setMonth(startDate.getMonth() - 1);
         }
+
+        // Create a map for quick lookup of existing data
+        // Key is YYYY-MM-DD
+        const dataMap = new Map<string, { date: string | Date; count: number }>();
+        data.forEach(item => {
+            const d = item.date instanceof Date ? item.date : new Date(item.date);
+            const key = d.toISOString().split('T')[0];
+            dataMap.set(key, item);
+        });
+
+        // Fill in missing days
+        const current = new Date(startDate);
+        while (current <= today) {
+            const key = current.toISOString().split('T')[0];
+            if (dataMap.has(key)) {
+                effectiveData.push(dataMap.get(key)!);
+            } else {
+                effectiveData.push({ date: key, count: 0 });
+            }
+            current.setDate(current.getDate() + 1);
+        }
     } else {
         startDate.setFullYear(today.getFullYear());
         startDate.setMonth(startDate.getMonth() - 1);
+        effectiveData = []; // No data provided, but we could technically fill 0s if we wanted an empty year view, existing logic implies empty
     }
 
     return (
@@ -38,7 +63,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
             <ReactCalendarHeatmap
                 startDate={startDate}
                 endDate={today}
-                values={data}
+                values={effectiveData}
                 horizontal={false}
                 showMonthLabels={true}
                 showWeekdayLabels={true}
