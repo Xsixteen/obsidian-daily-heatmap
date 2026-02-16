@@ -18,7 +18,7 @@ export class DailyStatsSettingTab extends PluginSettingTab {
             .setName('Heatmap Title')
             .setDesc('Title to display on the heatmap')
             .addText(text => text
-                .setPlaceholder('Daily Heatmap')
+                .setPlaceholder('Daily Writing Stats')
                 .setValue(this.plugin.settings.heatmapTitle)
                 .onChange(async (value) => {
                     this.plugin.settings.heatmapTitle = value;
@@ -36,6 +36,21 @@ export class DailyStatsSettingTab extends PluginSettingTab {
                     const thresholds = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
                     if (thresholds.length === 4) {
                         this.plugin.settings.colorThresholds = [thresholds[0], thresholds[1], thresholds[2], thresholds[3]];
+                        await this.plugin.saveSettings();
+                        this.plugin.updateView();
+                    }
+                }));
+
+        new Setting(containerEl)
+            .setName('Daily Goal')
+            .setDesc('Set your daily word count goal (default: 500)')
+            .addText(text => text
+                .setPlaceholder('500')
+                .setValue(String(this.plugin.settings.dailyGoal))
+                .onChange(async (value) => {
+                    const goal = parseInt(value.trim());
+                    if (!isNaN(goal)) {
+                        this.plugin.settings.dailyGoal = goal;
                         await this.plugin.saveSettings();
                         this.plugin.updateView();
                     }

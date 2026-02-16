@@ -60,9 +60,72 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         effectiveData = []; // No data provided, but we could technically fill 0s if we wanted an empty year view, existing logic implies empty
     }
 
+    // Calculate progress
+    const todayKey = today.toISOString().split('T')[0];
+    const todayData = effectiveData.find(d => {
+        const dDate = d.date instanceof Date ? d.date : new Date(d.date);
+        return dDate.toISOString().split('T')[0] === todayKey;
+    });
+    const todayCount = todayData ? todayData.count : 0;
+    const progressPercent = Math.min(100, Math.round((todayCount / settings.dailyGoal) * 100));
+
     return (
-        <div className="calendar-container" style={{ padding: "10px", maxWidth: "400px", margin: "0 auto" }}>
-            <h4 style={{ textAlign: "center", marginBottom: "10px" }}>{settings.heatmapTitle}</h4>
+        <div className="calendar-container" style={{
+            padding: "20px",
+            maxWidth: "400px",
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
+        }}>
+            <h3 style={{
+                textAlign: "center",
+                margin: 0,
+                fontSize: "var(--font-ui-medium)",
+                color: "var(--text-normal)",
+                fontWeight: "600"
+            }}>{settings.heatmapTitle}</h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "20px" }}>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: "var(--font-ui-small)",
+                    color: "var(--text-muted)"
+                }}>
+                    <span>Daily Goal</span>
+                    <span>
+                        <strong style={{ color: "var(--text-normal)" }}>{todayCount}</strong>
+                        <span style={{ margin: "0 4px" }}>/</span>
+                        {settings.dailyGoal}
+                    </span>
+                </div>
+                <div style={{
+                    height: "8px",
+                    width: "100%",
+                    backgroundColor: "var(--background-modifier-border)",
+                    borderRadius: "4px",
+                    overflow: "hidden"
+                }}>
+                    <div style={{
+                        height: "100%",
+                        width: `${progressPercent}%`,
+                        background: "linear-gradient(90deg, var(--interactive-accent) 0%, var(--interactive-accent-hover) 100%)",
+                        boxShadow: "0 0 8px var(--interactive-accent)",
+                        borderRadius: "4px",
+                        transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
+                    }} />
+                </div>
+            </div>
+
+            <h4 style={{
+                textAlign: "center",
+                margin: "0 0 10px 0",
+                fontSize: "var(--font-ui-medium)",
+                color: "var(--text-normal)",
+                fontWeight: "600"
+            }}>Heatmap</h4>
+
             <ReactCalendarHeatmap
                 startDate={startDate}
                 endDate={today}
