@@ -1,20 +1,22 @@
 import * as React from "react";
 import ReactCalendarHeatmap from "react-calendar-heatmap";
+import { DailyStatsSettings } from "./types";
 
 interface HeatmapProps {
     data: { date: string | Date; count: number }[];
+    settings: DailyStatsSettings;
 }
 
-const getColorLevel = (count: number): number => {
+const getColorLevel = (count: number, thresholds: [number, number, number, number]): number => {
     if (count === 0) return 0;
-    if (count < 150) return 1;
-    if (count < 400) return 2;
-    if (count < 750) return 3;
-    if (count < 1500) return 4;
+    if (count < thresholds[0]) return 1;
+    if (count < thresholds[1]) return 2;
+    if (count < thresholds[2]) return 3;
+    if (count < thresholds[3]) return 4;
     return 5;
 };
 
-const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
+const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
     const today = new Date();
     let startDate = new Date();
 
@@ -60,6 +62,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
 
     return (
         <div className="calendar-container" style={{ padding: "10px", maxWidth: "400px", margin: "0 auto" }}>
+            <h4 style={{ textAlign: "center", marginBottom: "10px" }}>{settings.heatmapTitle}</h4>
             <ReactCalendarHeatmap
                 startDate={startDate}
                 endDate={today}
@@ -68,13 +71,13 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
                 showMonthLabels={true}
                 showWeekdayLabels={true}
                 showOutOfRangeDays={false}
-                classForValue={(value) => {
+                classForValue={(value: { date: string | Date; count: number } | null) => {
                     if (!value || value.count === 0) {
                         return 'color-empty';
                     }
-                    return `color-scale-${getColorLevel(value.count)}`;
+                    return `color-scale-${getColorLevel(value.count, settings.colorThresholds)}`;
                 }}
-                titleForValue={(value) => {
+                titleForValue={(value: { date: string | Date; count: number } | null) => {
                     if (!value || !value.date) return '';
                     const dateObj = value.date instanceof Date ? value.date : new Date(value.date);
                     // Use UTC to prevent timezone shift since strings like "2023-01-01" parse as UTC midnight
