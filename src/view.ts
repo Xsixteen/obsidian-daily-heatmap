@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 import { VIEW_TYPE_STATS_TRACKER } from "./constants";
 import { createRoot, Root } from "react-dom/client";
 import * as React from "react";
-import Calendar from "./calendar";
+import Widget from "./widget";
 import { DailyStatsSettings } from "./types";
 
 export default class StatsTrackerView extends ItemView {
@@ -57,6 +57,6 @@ export default class StatsTrackerView extends ItemView {
             count: count
         }));
 
-        this.root.render(React.createElement(Calendar, { data, settings: this.settings }));
+        this.root.render(React.createElement(Widget, { data, settings: this.settings }));
     }
 }
