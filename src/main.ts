@@ -1,28 +1,15 @@
 import { TFile, Plugin, MarkdownView, debounce, Debouncer, WorkspaceLeaf, addIcon, moment } from 'obsidian';
 import { VIEW_TYPE_STATS_TRACKER } from './constants';
 import StatsTrackerView from './view';
-
-interface WordCount {
-	initial: number;
-	current: number;
-}
-
-interface DailyStatsSettings {
-	dayCounts: Record<string, number>;
-	todaysWordCount: Record<string, WordCount>;
-}
-
-const DEFAULT_SETTINGS: DailyStatsSettings = {
-	dayCounts: {},
-	todaysWordCount: {}
-}
+import { DailyStatsSettings, DEFAULT_SETTINGS } from './types';
+import { DailyStatsSettingTab } from './settings';
 
 export default class DailyStats extends Plugin {
 	settings: DailyStatsSettings;
 	statusBarEl: HTMLElement;
 	currentWordCount: number;
 	today: string;
-	debouncedUpdate: Debouncer<[contents: string, filepath: string]>;
+	debouncedUpdate: Debouncer<[string, string], void>;
 
 
 
@@ -47,7 +34,7 @@ export default class DailyStats extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_STATS_TRACKER,
-			(leaf: WorkspaceLeaf) => new StatsTrackerView(leaf, this.settings.dayCounts)
+			(leaf: WorkspaceLeaf) => new StatsTrackerView(leaf, this.settings)
 		);
 
 		this.addCommand({
@@ -62,6 +49,8 @@ export default class DailyStats extends Plugin {
 				this.initLeaf();
 			},
 		});
+
+		this.addSettingTab(new DailyStatsSettingTab(this.app, this));
 
 		this.registerEvent(
 			this.app.workspace.on("quick-preview", this.onQuickPreview.bind(this))
@@ -85,6 +74,7 @@ export default class DailyStats extends Plugin {
 			this.initLeaf();
 		} else {
 			this.registerEvent(
+				// @ts-ignore
 				this.app.workspace.on("layout-ready", this.initLeaf.bind(this))
 			);
 		}
@@ -196,9 +186,13 @@ export default class DailyStats extends Plugin {
 		this.statusBarEl.setText(this.currentWordCount + " words today");
 
 		// Update View
+		this.updateView();
+	}
+
+	updateView() {
 		const leaf = this.app.workspace.getLeavesOfType(VIEW_TYPE_STATS_TRACKER)[0];
 		if (leaf && leaf.view instanceof StatsTrackerView) {
-			leaf.view.refresh(this.settings.dayCounts);
+			leaf.view.refresh(this.settings);
 		}
 	}
 

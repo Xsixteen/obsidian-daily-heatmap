@@ -3,14 +3,15 @@ import { VIEW_TYPE_STATS_TRACKER } from "./constants";
 import { createRoot, Root } from "react-dom/client";
 import * as React from "react";
 import Calendar from "./calendar";
+import { DailyStatsSettings } from "./types";
 
 export default class StatsTrackerView extends ItemView {
-    private dayCounts: Record<string, number>;
+    private settings: DailyStatsSettings;
     private root: Root | null = null;
 
-    constructor(leaf: WorkspaceLeaf, dayCounts: Record<string, number>) {
+    constructor(leaf: WorkspaceLeaf, settings: DailyStatsSettings) {
         super(leaf);
-        this.dayCounts = dayCounts;
+        this.settings = settings;
     }
 
     getDisplayText() {
@@ -38,8 +39,8 @@ export default class StatsTrackerView extends ItemView {
         return Promise.resolve();
     }
 
-    refresh(dayCounts: Record<string, number>) {
-        this.dayCounts = dayCounts;
+    refresh(settings: DailyStatsSettings) {
+        this.settings = settings;
         this.renderView();
     }
 
@@ -51,11 +52,11 @@ export default class StatsTrackerView extends ItemView {
             this.root = createRoot(container);
         }
 
-        const data = Object.entries(this.dayCounts).map(([date, count]) => ({
+        const data = Object.entries(this.settings.dayCounts).map(([date, count]) => ({
             date: date,
             count: count
         }));
 
-        this.root.render(React.createElement(Calendar, { data }));
+        this.root.render(React.createElement(Calendar, { data, settings: this.settings }));
     }
 }
