@@ -35,9 +35,12 @@ export class DailyStatsSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     const thresholds = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
                     if (thresholds.length === 4) {
-                        this.plugin.settings.colorThresholds = [thresholds[0], thresholds[1], thresholds[2], thresholds[3]];
-                        await this.plugin.saveSettings();
-                        this.plugin.updateView();
+                        const isIncreasing = thresholds.every((val, i, arr) => i === 0 || arr[i - 1] < val);
+                        if (isIncreasing) {
+                            this.plugin.settings.colorThresholds = [thresholds[0], thresholds[1], thresholds[2], thresholds[3]];
+                            await this.plugin.saveSettings();
+                            this.plugin.updateView();
+                        }
                     }
                 }));
 

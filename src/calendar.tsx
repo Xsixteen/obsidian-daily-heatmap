@@ -80,13 +80,22 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         }}>
             <h3 style={{
                 textAlign: "center",
-                margin: 0,
+                margin: "0 0 10px 0",
                 fontSize: "var(--font-ui-medium)",
                 color: "var(--text-normal)",
                 fontWeight: "600"
             }}>{settings.heatmapTitle}</h3>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "20px" }}>
+            {/* Daily Goal Card */}
+            <div style={{
+                backgroundColor: "var(--background-secondary)",
+                border: "1px solid var(--background-modifier-border)",
+                borderRadius: "var(--radius-m)",
+                padding: "var(--size-4-4)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px"
+            }}>
                 <div style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -118,40 +127,80 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                 </div>
             </div>
 
-            <h4 style={{
-                textAlign: "center",
-                margin: "0 0 10px 0",
-                fontSize: "var(--font-ui-medium)",
-                color: "var(--text-normal)",
-                fontWeight: "600"
-            }}>Heatmap</h4>
+            {/* Yearly Progress Card */}
+            <div style={{
+                backgroundColor: "var(--background-secondary)",
+                border: "1px solid var(--background-modifier-border)",
+                borderRadius: "var(--radius-m)",
+                padding: "var(--size-4-4)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px"
+            }}>
+                <div style={{
+                    fontSize: "var(--font-ui-small)",
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
+                }}>
+                    This Year
+                </div>
+                <div style={{
+                    fontSize: "2em",
+                    fontWeight: "bold",
+                    color: "var(--text-normal)",
+                    lineHeight: "1.2"
+                }}>
+                    {effectiveData.reduce((sum, day) => {
+                        const d = day.date instanceof Date ? day.date : new Date(day.date);
+                        return d.getFullYear() === today.getFullYear() ? sum + day.count : sum;
+                    }, 0).toLocaleString()}
+                    <span style={{ fontSize: "0.4em", marginLeft: "6px", color: "var(--text-muted)", verticalAlign: "baseline" }}>words</span>
+                </div>
+            </div>
 
-            <ReactCalendarHeatmap
-                startDate={startDate}
-                endDate={today}
-                values={effectiveData}
-                horizontal={false}
-                showMonthLabels={true}
-                showWeekdayLabels={true}
-                showOutOfRangeDays={false}
-                classForValue={(value: { date: string | Date; count: number } | null) => {
-                    if (!value || value.count === 0) {
-                        return 'color-empty';
-                    }
-                    return `color-scale-${getColorLevel(value.count, settings.colorThresholds)}`;
-                }}
-                titleForValue={(value: { date: string | Date; count: number } | null) => {
-                    if (!value || !value.date) return '';
-                    const dateObj = value.date instanceof Date ? value.date : new Date(value.date);
-                    // Use UTC to prevent timezone shift since strings like "2023-01-01" parse as UTC midnight
-                    const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
-                    const year = dateObj.getUTCFullYear();
-                    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-                    const day = String(dateObj.getUTCDate()).padStart(2, '0');
-                    const dateStr = `${weekday} ${year}-${month}-${day}`;
-                    return `${value.count} words on ${dateStr}`;
-                }}
-            />
+            {/* Heatmap Card */}
+            <div style={{
+                backgroundColor: "var(--background-secondary)",
+                border: "1px solid var(--background-modifier-border)",
+                borderRadius: "var(--radius-m)",
+                padding: "var(--size-4-4)"
+            }}>
+                <h4 style={{
+                    textAlign: "center",
+                    margin: "0 0 10px 0",
+                    fontSize: "var(--font-ui-medium)",
+                    color: "var(--text-normal)",
+                    fontWeight: "600"
+                }}>Heatmap</h4>
+
+                <ReactCalendarHeatmap
+                    startDate={startDate}
+                    endDate={today}
+                    values={effectiveData}
+                    horizontal={false}
+                    showMonthLabels={true}
+                    showWeekdayLabels={true}
+                    showOutOfRangeDays={false}
+                    classForValue={(value: { date: string | Date; count: number } | null) => {
+                        if (!value || value.count === 0) {
+                            return 'color-empty';
+                        }
+                        return `color-scale-${getColorLevel(value.count, settings.colorThresholds)}`;
+                    }}
+                    titleForValue={(value: { date: string | Date; count: number } | null) => {
+                        if (!value || !value.date) return '';
+                        const dateObj = value.date instanceof Date ? value.date : new Date(value.date);
+                        // Use UTC to prevent timezone shift since strings like "2023-01-01" parse as UTC midnight
+                        const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+                        const year = dateObj.getUTCFullYear();
+                        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+                        const day = String(dateObj.getUTCDate()).padStart(2, '0');
+                        const dateStr = `${weekday} ${year}-${month}-${day}`;
+                        return `${value.count} words on ${dateStr}`;
+                    }}
+                />
+            </div>
         </div>
     );
 };
