@@ -47,8 +47,9 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         const current = new Date(startDate);
         while (current <= today) {
             const key = current.toISOString().split('T')[0];
-            if (dataMap.has(key)) {
-                effectiveData.push(dataMap.get(key)!);
+            const item = dataMap.get(key);
+            if (item) {
+                effectiveData.push(item);
             } else {
                 effectiveData.push({ date: key, count: 0 });
             }

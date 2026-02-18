@@ -27,7 +27,7 @@ export class DailyStatsSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Color Thresholds')
+            .setName('Color thresholds')
             .setDesc('Set the word count thresholds for the 5 color intensities. Separate with commas (e.g. 150, 400, 750, 1500)')
             .addText(text => text
                 .setPlaceholder('150, 400, 750, 1500')
@@ -45,7 +45,7 @@ export class DailyStatsSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Daily Goal')
+            .setName('Daily goal')
             .setDesc('Set your daily word count goal (default: 500)')
             .addText(text => text
                 .setPlaceholder('500')
