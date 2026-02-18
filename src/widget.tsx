@@ -17,7 +17,18 @@ const getColorLevel = (count: number, thresholds: [number, number, number, numbe
 };
 
 const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
+    // Use local date for today to match main.ts logic
     const today = new Date();
+    const todayKey = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0')
+    ].join('-');
+
+    // Create a date object that represents "today" in the same UTC-midnight terms as the data keys
+    // This ensures loop comparisons and heatmap endDate are consistent
+    const todayUtc = new Date(todayKey);
+
     let startDate = new Date();
 
     // effectiveData will hold our processed data including zero-filled days
@@ -45,7 +56,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
 
         // Fill in missing days
         const current = new Date(startDate);
-        while (current <= today) {
+        while (current <= todayUtc) {
             const key = current.toISOString().split('T')[0];
             const item = dataMap.get(key);
             if (item) {
@@ -58,11 +69,10 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
     } else {
         startDate.setFullYear(today.getFullYear());
         startDate.setMonth(startDate.getMonth() - 1);
-        effectiveData = []; // No data provided, but we could technically fill 0s if we wanted an empty year view, existing logic implies empty
+        effectiveData = [];
     }
 
     // Calculate progress
-    const todayKey = today.toISOString().split('T')[0];
     const todayData = effectiveData.find(d => {
         const dDate = d.date instanceof Date ? d.date : new Date(d.date);
         return dDate.toISOString().split('T')[0] === todayKey;
@@ -112,7 +122,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
 
                 <ReactCalendarHeatmap
                     startDate={startDate}
-                    endDate={today}
+                    endDate={todayUtc}
                     values={effectiveData}
                     horizontal={false}
                     showMonthLabels={true}
