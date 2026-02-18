@@ -4,14 +4,13 @@ declare module 'react-calendar-heatmap' {
     export interface ReactCalendarHeatmapProps {
         startDate: string | Date;
         endDate: string | Date;
-        values: any[];
+        values: { date: string | Date; count: number }[];
         horizontal?: boolean;
         showMonthLabels?: boolean;
         showWeekdayLabels?: boolean;
         showOutOfRangeDays?: boolean;
-        classForValue?: (value: any) => string;
-        titleForValue?: (value: any) => string;
-        [key: string]: any;
+        classForValue?: (value: { date: string | Date; count: number } | null) => string;
+        titleForValue?: (value: { date: string | Date; count: number } | null) => string;
     }
 
     export default class ReactCalendarHeatmap extends React.Component<ReactCalendarHeatmapProps> { }
