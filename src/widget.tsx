@@ -70,38 +70,12 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
     const progressPercent = Math.min(100, Math.round((todayCount / settings.dailyGoal) * 100));
 
     return (
-        <div className="calendar-container" style={{
-            padding: "20px",
-            maxWidth: "400px",
-            margin: "0 auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem"
-        }}>
-            <h3 style={{
-                textAlign: "center",
-                margin: "0 0 10px 0",
-                fontSize: "var(--font-ui-medium)",
-                color: "var(--text-normal)",
-                fontWeight: "600"
-            }}>{settings.heatmapTitle}</h3>
+        <div className="daily-heatmap__container">
+            <h3 className="daily-heatmap__title">{settings.heatmapTitle}</h3>
 
             {/* Daily Goal Card */}
-            <div style={{
-                backgroundColor: "var(--background-secondary)",
-                border: "1px solid var(--background-modifier-border)",
-                borderRadius: "var(--radius-m)",
-                padding: "var(--size-4-4)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px"
-            }}>
-                <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: "var(--font-ui-small)",
-                    color: "var(--text-muted)"
-                }}>
+            <div className="daily-heatmap__card">
+                <div className="daily-heatmap__metric-header">
                     <span>Daily Goal</span>
                     <span>
                         <strong style={{ color: "var(--text-normal)" }}>{todayCount}</strong>
@@ -109,70 +83,31 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                         {settings.dailyGoal}
                     </span>
                 </div>
-                <div style={{
-                    height: "8px",
-                    width: "100%",
-                    backgroundColor: "var(--background-modifier-border)",
-                    borderRadius: "4px",
-                    overflow: "hidden"
-                }}>
-                    <div style={{
-                        height: "100%",
-                        width: `${progressPercent}%`,
-                        background: "linear-gradient(90deg, var(--interactive-accent) 0%, var(--interactive-accent-hover) 100%)",
-                        boxShadow: "0 0 8px var(--interactive-accent)",
-                        borderRadius: "4px",
-                        transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
-                    }} />
+                <div className="daily-heatmap__progress-bar-container">
+                    <div
+                        className="daily-heatmap__progress-bar-fill"
+                        style={{ width: `${progressPercent}%` }}
+                    />
                 </div>
             </div>
 
             {/* Yearly Progress Card */}
-            <div style={{
-                backgroundColor: "var(--background-secondary)",
-                border: "1px solid var(--background-modifier-border)",
-                borderRadius: "var(--radius-m)",
-                padding: "var(--size-4-4)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "6px"
-            }}>
-                <div style={{
-                    fontSize: "var(--font-ui-small)",
-                    color: "var(--text-muted)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em"
-                }}>
+            <div className="daily-heatmap__card">
+                <div className="daily-heatmap__yearly-label">
                     This Year
                 </div>
-                <div style={{
-                    fontSize: "2em",
-                    fontWeight: "bold",
-                    color: "var(--text-normal)",
-                    lineHeight: "1.2"
-                }}>
+                <div className="daily-heatmap__yearly-value">
                     {effectiveData.reduce((sum, day) => {
                         const d = day.date instanceof Date ? day.date : new Date(day.date);
                         return d.getFullYear() === today.getFullYear() ? sum + day.count : sum;
                     }, 0).toLocaleString()}
-                    <span style={{ fontSize: "0.4em", marginLeft: "6px", color: "var(--text-muted)", verticalAlign: "baseline" }}>words</span>
+                    <span className="daily-heatmap__yearly-suffix">words</span>
                 </div>
             </div>
 
             {/* Heatmap Card */}
-            <div style={{
-                backgroundColor: "var(--background-secondary)",
-                border: "1px solid var(--background-modifier-border)",
-                borderRadius: "var(--radius-m)",
-                padding: "var(--size-4-4)"
-            }}>
-                <h4 style={{
-                    textAlign: "center",
-                    margin: "0 0 10px 0",
-                    fontSize: "var(--font-ui-medium)",
-                    color: "var(--text-normal)",
-                    fontWeight: "600"
-                }}>Heatmap</h4>
+            <div className="daily-heatmap__card">
+                <h4 className="daily-heatmap__section-title">Heatmap</h4>
 
                 <ReactCalendarHeatmap
                     startDate={startDate}

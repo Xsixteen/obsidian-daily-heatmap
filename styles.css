@@ -44,3 +44,83 @@
   fill: var(--text-accent);
   opacity: 1.0;
 }
+
+/* Daily Stats View */
+.daily-heatmap__container {
+  padding: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.daily-heatmap__title {
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-size: var(--font-ui-medium);
+  color: var(--text-normal);
+  font-weight: 600;
+}
+
+.daily-heatmap__card {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  padding: var(--size-4-4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.daily-heatmap__metric-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+}
+
+.daily-heatmap__progress-bar-container {
+  height: 8px;
+  width: 100%;
+  background-color: var(--background-modifier-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.daily-heatmap__progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--interactive-accent) 0%, var(--interactive-accent-hover) 100%);
+  box-shadow: 0 0 8px var(--interactive-accent);
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.daily-heatmap__yearly-label {
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.daily-heatmap__yearly-value {
+  font-size: 2em;
+  font-weight: bold;
+  color: var(--text-normal);
+  line-height: 1.2;
+}
+
+.daily-heatmap__yearly-suffix {
+  font-size: 0.4em;
+  margin-left: 6px;
+  color: var(--text-muted);
+  vertical-align: baseline;
+}
+
+.daily-heatmap__section-title {
+  text-align: center;
+  margin: 0 0 10px 0;
+  font-size: var(--font-ui-medium);
+  color: var(--text-normal);
+  font-weight: 600;
+}

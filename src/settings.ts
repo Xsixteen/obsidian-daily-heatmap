@@ -15,8 +15,8 @@ export class DailyStatsSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         new Setting(containerEl)
-            .setName('Heatmap Title')
-            .setDesc('Title to display on the heatmap')
+            .setName('Title')
+            .setDesc('Title to display on the sidebar.')
             .addText(text => text
                 .setPlaceholder('Daily Writing Stats')
                 .setValue(this.plugin.settings.heatmapTitle)
