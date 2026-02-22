@@ -1,7 +1,7 @@
 {
 	"id": "daily-heatmap-stats",
 	"name": "Daily Writing Stats",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"minAppVersion": "0.10.12",
 	"description": "Track your daily word count across all notes in your vaults and display them in a heatmap and on the status bar.",
 	"author": "Eric Ulicny",
