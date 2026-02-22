@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState, useMemo } from "react";
 import ReactCalendarHeatmap from "react-calendar-heatmap";
 import { DailyStatsSettings } from "./types";
 
@@ -17,6 +18,9 @@ const getColorLevel = (count: number, thresholds: [number, number, number, numbe
 };
 
 const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
+    // State for the selected year
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
     // Use local date for today to match main.ts logic
     const today = new Date();
     const todayKey = [
@@ -72,7 +76,37 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         effectiveData = [];
     }
 
-    // Calculate progress
+    // Extract unique years from the data, plus the current year, and sort descending
+    const availableYears = useMemo(() => {
+        const years = new Set<number>();
+        years.add(today.getFullYear());
+        data.forEach(item => {
+            const d = item.date instanceof Date ? item.date : new Date(item.date);
+            years.add(d.getFullYear());
+        });
+        return Array.from(years).sort((a, b) => b - a);
+    }, [data, today.getFullYear()]);
+
+    // Filter effectiveData and determine display dates based on selectedYear
+    const isCurrentYear = selectedYear === today.getFullYear();
+    const displayEndDate = isCurrentYear ? todayUtc : new Date(`${selectedYear}-12-31T00:00:00.000Z`);
+
+    // For start date: if it's the current year but we don't have enough data to fill a month, 
+    // we use the original startDate (which might be ~1 month ago). 
+    // If it's a prior year, show the whole year.
+    // If data goes way back, and we only want to show the selected year, let's start at Jan 1st of that year.
+    const displayStartDate = isCurrentYear
+        ? new Date(Math.max(startDate.getTime(), new Date(`${selectedYear}-01-01T00:00:00.000Z`).getTime()))
+        : new Date(`${selectedYear}-01-01T00:00:00.000Z`);
+
+    // Only include data that falls within the selected year for the heatmap view
+    const yearlyData = effectiveData.filter(d => {
+        const dDate = d.date instanceof Date ? d.date : new Date(d.date);
+        return dDate.getUTCFullYear() === selectedYear; // Using UTC since our keys are UTC-based
+    });
+
+
+    // Calculate progress (only relevant for current year, but calculation is fine)
     const todayData = effectiveData.find(d => {
         const dDate = d.date instanceof Date ? d.date : new Date(d.date);
         return dDate.toISOString().split('T')[0] === todayKey;
@@ -105,13 +139,10 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
             {/* Yearly Progress Card */}
             <div className="daily-heatmap__card">
                 <div className="daily-heatmap__yearly-label">
-                    This Year
+                    {isCurrentYear ? "This Year" : `${selectedYear}`}
                 </div>
                 <div className="daily-heatmap__yearly-value">
-                    {effectiveData.reduce((sum, day) => {
-                        const d = day.date instanceof Date ? day.date : new Date(day.date);
-                        return d.getFullYear() === today.getFullYear() ? sum + day.count : sum;
-                    }, 0).toLocaleString()}
+                    {yearlyData.reduce((sum, day) => sum + day.count, 0).toLocaleString()}
                     <span className="daily-heatmap__yearly-suffix">words</span>
                 </div>
             </div>
@@ -121,9 +152,9 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                 <h4 className="daily-heatmap__section-title">Heatmap</h4>
 
                 <ReactCalendarHeatmap
-                    startDate={startDate}
-                    endDate={todayUtc}
-                    values={effectiveData}
+                    startDate={displayStartDate}
+                    endDate={displayEndDate}
+                    values={yearlyData}
                     horizontal={false}
                     showMonthLabels={true}
                     showWeekdayLabels={true}
@@ -147,6 +178,34 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                     }}
                 />
             </div>
+
+            {/* Pagination / Year Links */}
+            {availableYears.length > 1 && (
+                <div className="daily-heatmap__pagination" style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '12px', flexWrap: 'wrap' }}>
+                    {availableYears.map(year => (
+                        <a
+                            key={year}
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setSelectedYear(year);
+                            }}
+                            className={`daily-heatmap__year-link ${selectedYear === year ? 'is-active' : ''}`}
+                            style={{
+                                cursor: 'pointer',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                color: selectedYear === year ? 'var(--text-on-accent)' : 'var(--text-muted)',
+                                backgroundColor: selectedYear === year ? 'var(--interactive-accent)' : 'transparent',
+                                textDecoration: 'none',
+                                fontWeight: selectedYear === year ? 'bold' : 'normal'
+                            }}
+                        >
+                            {year}
+                        </a>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
