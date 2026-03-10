@@ -15,7 +15,7 @@ export default class DailyStats extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		await this.migrateData();
+		//	await this.migrateData();
 
 		this.statusBarEl = this.addStatusBarItem();
 		this.updateDate();

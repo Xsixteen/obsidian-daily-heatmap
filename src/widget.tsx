@@ -32,6 +32,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
     // Create a date object that represents "today" in the same UTC-midnight terms as the data keys
     // This ensures loop comparisons and heatmap endDate are consistent
     const todayUtc = new Date(todayKey);
+    todayUtc.setUTCDate(todayUtc.getUTCDate() + 1);
 
     let startDate = new Date();
 
