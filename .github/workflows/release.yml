@@ -11,6 +11,7 @@ jobs:
     permissions:
       id-token: write # Required for requesting the JWT
       contents: write
+      attestations: write
     steps:
       - uses: actions/checkout@v3
 
@@ -25,7 +26,7 @@ jobs:
           npm run build
 
       - name: Attest Plugin Artifacts
-        uses: actions/attest@v1
+        uses: actions/attest-build-provenance@v1
         with:
             subject-path: |
                 main.js
