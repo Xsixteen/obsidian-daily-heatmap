@@ -23,6 +23,14 @@ jobs:
           npm ci
           npm run build
 
+      - name: Attest Plugin Artifacts
+        uses: actions/attest@v1
+        with:
+            subject-path: |
+                main.js
+                manifest.json
+                styles.css
+
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
