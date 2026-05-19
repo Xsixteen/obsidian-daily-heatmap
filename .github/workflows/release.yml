@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
+      id-token: write # Required for requesting the JWT
       contents: write
     steps:
       - uses: actions/checkout@v3
