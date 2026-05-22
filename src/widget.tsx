@@ -84,7 +84,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         data.forEach(item => {
             if (item.count > 0) {
                 const d = item.date instanceof Date ? item.date : new Date(item.date);
-                years.add(d.getFullYear());
+                years.add(d.getUTCFullYear());
             }
         });
         return Array.from(years).sort((a, b) => b - a);
@@ -171,7 +171,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                                 <span className="daily-heatmap__yearly-suffix">words</span>
                             </>
                         ) : (
-                            "No data"
+                            <div style={{ textAlign: "center", fontSize: "0.6em", color: "var(--text-muted)", fontWeight: "normal" }}>No data</div>
                         )}
                     </div>
                 </div>
