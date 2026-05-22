@@ -116,7 +116,7 @@ export default class DailyStats extends Plugin {
 		if (this.app.workspace.getLeavesOfType(VIEW_TYPE_STATS_TRACKER).length) {
 			return;
 		}
-		void this.app.workspace.getRightLeaf(false).setViewState({
+		this.app.workspace.getRightLeaf(false).setViewState({
 			type: VIEW_TYPE_STATS_TRACKER,
 		});
 	}

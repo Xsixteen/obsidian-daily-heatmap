@@ -106,6 +106,14 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         return dDate.getUTCFullYear() === selectedYear; // Using UTC since our keys are UTC-based
     });
 
+    const lastYear = selectedYear - 1;
+    const lastYearItems = data.filter(d => {
+        const dDate = d.date instanceof Date ? d.date : new Date(d.date);
+        return dDate.getUTCFullYear() === lastYear;
+    });
+    const hasLastYearData = lastYearItems.length > 0;
+    const lastYearCount = lastYearItems.reduce((sum, day) => sum + day.count, 0);
+
 
     // Calculate progress (only relevant for current year, but calculation is fine)
     const todayData = effectiveData.find(d => {
@@ -147,6 +155,25 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                     <span className="daily-heatmap__yearly-suffix">words</span>
                 </div>
             </div>
+
+            {/* Last Year Progress Card */}
+            {(settings.showLastYearBox ?? true) && (
+                <div className="daily-heatmap__card">
+                    <div className="daily-heatmap__yearly-label">
+                        {isCurrentYear ? "Last Year" : `${lastYear}`}
+                    </div>
+                    <div className="daily-heatmap__yearly-value">
+                        {hasLastYearData ? (
+                            <>
+                                {lastYearCount.toLocaleString()}
+                                <span className="daily-heatmap__yearly-suffix">words</span>
+                            </>
+                        ) : (
+                            "-"
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Heatmap Card */}
             <div className="daily-heatmap__card">

@@ -11,6 +11,7 @@ export interface DailyStatsSettings {
     heatmapSubtitle: string;
     dailyGoal: number;
     colorThresholds: [number, number, number, number]; // 4 thresholds for 5 colors (0 is handled separately)
+    showLastYearBox: boolean;
 }
 
 export const DEFAULT_SETTINGS: DailyStatsSettings = {
@@ -19,5 +20,6 @@ export const DEFAULT_SETTINGS: DailyStatsSettings = {
     heatmapTitle: "Daily Stats",
     heatmapSubtitle: "Word count heat map",
     dailyGoal: 500,
-    colorThresholds: [150, 400, 750, 1500] // Default values
+    colorThresholds: [150, 400, 750, 1500], // Default values
+    showLastYearBox: true
 }

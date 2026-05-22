@@ -58,5 +58,16 @@ export class DailyStatsSettingTab extends PluginSettingTab {
                         this.plugin.updateView();
                     }
                 }));
+
+        new Setting(containerEl)
+            .setName('Show Last Year box')
+            .setDesc('Toggle whether the Last Year progress card is visible in the heatmap widget.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showLastYearBox ?? true)
+                .onChange(async (value) => {
+                    this.plugin.settings.showLastYearBox = value;
+                    await this.plugin.saveSettings();
+                    this.plugin.updateView();
+                }));
     }
 }
