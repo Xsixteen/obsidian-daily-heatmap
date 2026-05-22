@@ -82,8 +82,10 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
         const years = new Set<number>();
         years.add(today.getFullYear());
         data.forEach(item => {
-            const d = item.date instanceof Date ? item.date : new Date(item.date);
-            years.add(d.getFullYear());
+            if (item.count > 0) {
+                const d = item.date instanceof Date ? item.date : new Date(item.date);
+                years.add(d.getFullYear());
+            }
         });
         return Array.from(years).sort((a, b) => b - a);
     }, [data, today.getFullYear()]);
@@ -109,7 +111,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
     const lastYear = selectedYear - 1;
     const lastYearItems = data.filter(d => {
         const dDate = d.date instanceof Date ? d.date : new Date(d.date);
-        return dDate.getUTCFullYear() === lastYear;
+        return dDate.getUTCFullYear() === lastYear && d.count > 0;
     });
     const hasLastYearData = lastYearItems.length > 0;
     const lastYearCount = lastYearItems.reduce((sum, day) => sum + day.count, 0);
@@ -169,7 +171,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data, settings }) => {
                                 <span className="daily-heatmap__yearly-suffix">words</span>
                             </>
                         ) : (
-                            "-"
+                            "No data"
                         )}
                     </div>
                 </div>
